@@ -1,10 +1,13 @@
 require_relative 'buffalo/symbols'
 require_relative 'buffalo/token'
 
-token = Token.new("int", "i", "7")
+symbols = Symbols.new(0) # crate new hash for each scope (function)
+symbols.add("num", "name", "value")
 
-hash = Hash.new # crate new hash for each scope (function)
-hash[token.name] = token
+puts "name already exists!" if symbols.add("string", "name", "value") == false
 
-newToken = hash["i"]
-newToken.display_details
+puts "test exists" if symbols.has("test")
+puts "test does not exist" unless symbols.has("test")
+
+#newToken = hash["i"]
+#newToken.display_details

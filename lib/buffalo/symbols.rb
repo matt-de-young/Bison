@@ -3,23 +3,29 @@
 class Symbols
 
 	attr_reader :scope
+	attr_accessor :hash
 
 	def initialize(scope)
 
-		hash = Hash.new
+		@hash = Hash.new
 		@scope = scope
 
 	end
 
-  def addToken(type, name, value)
+	# Returns true is token is added to the table, else returns fasle
+  def add(type, name, value)
         
-  	# TODO: Use 'has' to check if token of same name exists
+  	if self.has(name) != nil
+  		return false
+  	end
+
   	token = Token.new(type, name, value) # Create the new entry
-  	hash[name] = token # Add the entry to the hash
+  	self.hash[name] = token # Add the entry to the hash
+  	return true # TODO: Is this necessary?
 
   end
     
-  def deleteToken (name)
+  def delete (name)
         
   	# TODO: Null out existing entry
 
@@ -27,7 +33,7 @@ class Symbols
 
   def has (name)
 
-  	# TODO: Use 'has' to check if token of same name exists
+  	token = hash[name] # Retuns the token automatically, or returns nil
 
   end
 
