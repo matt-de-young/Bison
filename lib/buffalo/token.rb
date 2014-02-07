@@ -8,6 +8,7 @@ class Token
 		@value = value
 	end
 		
+	# TODO: Remove this 
 	def display_details()
 		puts "Type: #@type"
 		puts "Token: #@name"
