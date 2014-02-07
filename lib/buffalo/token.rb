@@ -1,12 +1,11 @@
 class Token
 
-	attr_accessor :type, :name, :value, :scope
+	attr_accessor :type, :name, :value
 
-	def initialize(type, name, value, scope)
+	def initialize(type, name, value)
 		@type = type
 		@name = name
 		@value = value
-		@scope = scope
 	end
 		
 	def display_details()
