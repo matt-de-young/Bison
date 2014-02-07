@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
     [
       "lib/buffalo.rb",
       "lib/buffalo/symbols.rb",
-      "lib/buffalo/symbol.rb"
+      "lib/buffalo/token.rb"
     ]
   s.homepage    =
     'http://rubygems.org/gems/buffalo'

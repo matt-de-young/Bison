@@ -1,15 +1,18 @@
 class Token
-    def initialize(type, token, value, scope)
-        @type = type
-        @token = token
-        @value = value
-        @scope = scope
-    end
-    
-    def display_details()
-        puts "Type: #@type"
-        puts "Token: #@token"
-        puts "Value: #@value"
-    end
-    
+
+	attr_accessor :type, :name, :value, :scope
+
+	def initialize(type, name, value, scope)
+		@type = type
+		@name = name
+		@value = value
+		@scope = scope
+	end
+		
+	def display_details()
+		puts "Type: #@type"
+		puts "Token: #@name"
+		puts "Value: #@value"
+	end
+		
 end

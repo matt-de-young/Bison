@@ -2,12 +2,20 @@
 
 class Symbols
 
-    def addToken
+	def initialize
+
+	end
+
+  def addToken
         
-    end
+  end
     
-    def deleteToken
+  def deleteToken
         
-    end
+  end
+
+  def has
+
+  end
 
 end
