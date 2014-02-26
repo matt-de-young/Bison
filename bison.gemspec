@@ -1,18 +1,18 @@
 Gem::Specification.new do |s|
-  s.name        = 'buffalo'
+  s.name        = 'bison'
   s.version     = '0.0.0'
   s.date        = '2014-02-06'
-  s.summary     = "Buffalo"
-  s.description = "Compiler for the Buffalo language"
+  s.summary     = "Bison"
+  s.description = "Compiler for the Bison language"
   s.authors     = ["Matt Geiger"]
   s.email       = 'Mail@MattGeiger.com'
   s.files       = 
     [
-      "lib/buffalo.rb",
-      "lib/buffalo/symbols.rb",
-      "lib/buffalo/token.rb"
+      "lib/bison.rb",
+      "lib/bison/symbols.rb",
+      "lib/bison/token.rb"
     ]
   s.homepage    =
-    'http://rubygems.org/gems/buffalo'
+    'http://rubygems.org/gems/bison'
   s.license       = 'MIT'
 end

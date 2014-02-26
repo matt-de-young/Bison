@@ -1,5 +1,5 @@
-require_relative 'buffalo/symbols'
-require_relative 'buffalo/token'
+require_relative 'bison/symbols'
+require_relative 'bison/token'
 
 def unitTests
 
