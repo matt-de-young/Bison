@@ -1,5 +1,6 @@
 require_relative 'bison/symbols'
 require_relative 'bison/token'
+require_relative 'bison/scanner'
 
 def unitTests
 
@@ -45,4 +46,7 @@ end
 
 # Run unit tests
 unitTests
+
+scanner = Scanner.new(ARGV[0]) # Test scanner by passing simple program.
+
 puts ""
