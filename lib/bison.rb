@@ -49,4 +49,6 @@ unitTests
 
 scanner = Scanner.new(ARGV[0]) # Test scanner by passing simple program.
 
+puts scanner.nextToken()
+
 puts ""

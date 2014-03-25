@@ -1,3 +1,5 @@
-#Test1.bison
+testToken
+
+--Test1.bison
 
 print "Hello World!"
