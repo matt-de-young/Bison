@@ -1,5 +1,9 @@
-testToken
+testToken Other.test
 
---Test1.bison
+--test comment
+
+/*
+test multi line comment
+*/
 
 print "Hello World!"
