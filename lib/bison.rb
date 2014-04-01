@@ -1,6 +1,8 @@
 require_relative 'bison/symbols'
 require_relative 'bison/token'
 require_relative 'bison/scanner'
+require_relative 'bison/parser'
+require_relative 'bison/stack'
 
 def unitTests
 
@@ -47,8 +49,15 @@ end
 # Run unit tests
 unitTests
 
-scanner = Scanner.new(ARGV[0]) # Test scanner by passing simple program.
+parser = Parser.new
 
-puts scanner.nextToken()
+# Test scanner by reading the first 20 tokens of an input. 
+#scanner = Scanner.new(ARGV[0])
+#puts ""
+#i = 0
+#while i < 20
+#	puts scanner.nextToken()
+#	i += 1
+#end 
 
 puts ""
