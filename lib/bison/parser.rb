@@ -1,16 +1,20 @@
 class Parser
 		
-	attr_accessor :scanner, :words, :symbols
+	attr_accessor :scanner, :words, :symbols, :table
 
 	def initialize()
 
 		@scanner = Scanner.new(ARGV[0])
 
-		# Contains all reserved words
-		@words = Hash.new
-		self.populate(@words)
+		@words = Hash.new # Contains codes for all terminal & non terminal symbols
 
-		puts self.words["INT"]
+		@table = Array.new(104) {Array.new(65) {Array.new(2) } }	# The parse table in a three dimensional array [state][input]
+
+		populate(words, table)
+
+		#puts words['INT']	# Example lookup for terminal
+		#table[0][0] = ['GOTO', 2]	# Example adding to table
+		#puts table[1][3] # Example returning from table
 
 		# Contains all user defined variables
 		@symbols = Symbols.new(0)
@@ -19,46 +23,83 @@ class Parser
 
 	end
 		
-	def populate(words)
+	def populate(words, table)
 
 		# For now, the string is the key. It may make more sence in the future to switch this
-		self.words["BOOLEAN"] = 1
-		self.words["NUMBER"] = 2
-		self.words["INT"] = 3
-		self.words["SMALLINT"] = 4
-		self.words["POSITIVE"] = 5
-		self.words["CHAR"] = 6
-		self.words["BEGIN"] = 7
-		self.words["DECLARE"] = 8
-		self.words["END"] = 9
-		self.words["IF"] = 10
-		self.words["THEN"] = 11
-		self.words["WHILE"] = 12
-		self.words["LOOP"] = 13
-		self.words["TRUE"] = 14
-		self.words["FALSE"] = 15
-		self.words["NULL"] = 16
-		self.words["NOT"] = 17
-		self.words["DBMS_OUTPUT"] = 18
-		self.words["PUT"] = 19
-		self.words["PUT_LINE"] = 20
-		self.words["NEW_LINE"] = 21
-		self.words["&"] = 22
-		self.words["$"] = 23
-		self.words["+"] = 24
-		self.words["-"] = 25
-		self.words["*"] = 26
-		self.words["/"] = 27
-		self.words["MOD"] = 28
-		self.words["."] = 29
-		self.words["("] = 30
-		self.words[")"] = 31
-		self.words[">"] = 32
-		self.words[">="] = 33
-		self.words["="] = 34
-		self.words["<="] = 35
-		self.words["<"] = 36
-		self.words["<>"] = 37
+
+		# Non-terminals
+		words["block"] = 1
+		words["declarations"] = 2
+		words["declare_rest"] = 3
+		words["default"] = 4
+		words["data_type"] = 5
+		words["characters"] = 6
+		words["size"] = 7
+		words["size_options"] = 8
+		words["numbers"] = 9
+		words["compound_statement"] = 10
+		words["optional_statements"] = 11
+		words["statement_list"] = 12
+		words["statement"] = 13
+		words["lefthandside"] = 14
+		words["righthandside"] = 15
+		words["expression"] = 16
+		words["simple_expression"] = 17
+		words["term"] = 18
+		words["factor"] = 19
+		words["relop"] = 20
+		words["addop"] = 21
+		words["mulop"] = 22
+
+		# Terminals
+		words["BOOLEAN"] = 23
+		words["NUMBER"] = 24
+		words["INT"] = 25
+		words["SMALLINT"] = 26
+		words["POSITIVE"] = 27
+		words["CHAR"] = 28
+		words["BEGIN"] = 29
+		words["DECLARE"] = 30
+		words["END"] = 31
+		words["IF"] = 32
+		words["THEN"] = 33
+		words["WHILE"] = 34
+		words["LOOP"] = 35
+		words["TRUE"] = 36
+		words["FALSE"] = 37
+		words["NULL"] = 38
+		words["NOT"] = 39
+		words["DBMS_OUTPUT"] = 40
+		words["PUT"] = 41
+		words["PUT_LINE"] = 42
+		words["NEW_LINE"] = 43
+		words["&"] = 44
+		words["$"] = 45
+		words["+"] = 46
+		words["-"] = 47
+		words["*"] = 48
+		words["/"] = 49
+		words["MOD"] = 50
+		words["."] = 51
+		words["("] = 52
+		words[")"] = 53
+		words[">"] = 54
+		words[">="] = 55
+		words["="] = 56
+		words["<="] = 57
+		words["<"] = 58
+		words["<>"] = 59
+		words["ID"] = 60
+
+		# Parse table
+		table[0][30] = ['shift', 1]
+		table[0][29] = ['reduce', 3]
+		table[0][1] = ['goto', 2]
+		table[0][2] = ['goto', 3]
+
+		table[1][60] = ['shift', 4]
+		table[1][29] = ['reduce', 5]
+		table[1][3] = ['goto', 5]
 
 	end
 
