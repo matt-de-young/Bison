@@ -12,7 +12,7 @@ class Scanner
 
 			@source = File.read(file)
 			
-			@breakers = ['.', '(', ')', '"', " ", "\n"]
+			@breakers = ['(', ')', '"', " ", "\n"]
 
 		end
 
