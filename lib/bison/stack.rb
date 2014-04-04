@@ -18,6 +18,11 @@ class Stack
 
 	end
 
+	# peeek at the top TWO elements
+	def peek()
+
+	end
+
 	def accept()
 
 	end
