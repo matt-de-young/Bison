@@ -1,33 +1,42 @@
 class Stack
 
-	attr_accessor :stack,
-
-	def initialize(file)
+	def initialize
 
 		@stack = Array.new
+		@stack.push(0)
 
 	end
 
-	# Push(Input), Push(State)
-	def shift(state, input)
+	# Push(State), Push(Token)
+	def shift(token, state)
+
+		stack.push(token)
+		stack.push(state)
 
 	end
 
-	# Replace (LHS)
-	def reduce(state, input)
+	def pop
+
+		state = stack.pop()
+		token = stack.pop()
+
+		ary = [token, state]	# Returns ary
 
 	end
 
-	# peeek at the top TWO elements
-	def peek()
+	def peek
+
+		state = @stack.pop()
+
+		@stack.push(state)
+
+		return state 
 
 	end
 
-	def accept()
+	def push(state)
 
-	end
-
-	def error()
+	@stack.push(state)
 
 	end
 		

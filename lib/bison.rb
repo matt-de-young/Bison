@@ -50,6 +50,7 @@ end
 unitTests
 
 parser = Parser.new
+parser.parse()
 
 # Test scanner by reading the first 20 tokens of an input. 
 #scanner = Scanner.new(ARGV[0])

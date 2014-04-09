@@ -1,9 +1,13 @@
-testToken Other.test
+BEGIN
 
---test comment
+	DECLARE
 
-/*
-test multi line comment
-*/
+	END
 
-print "Hello World!"
+	--test comment
+
+	/*
+	test multi line comment
+	*/
+
+END
