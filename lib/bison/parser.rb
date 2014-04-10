@@ -16,10 +16,6 @@ class Parser
 
 		build(words, table, grammar)
 
-		#puts words['INT']	# Example lookup for terminal
-		#table[0][0] = ['GOTO', 2]	# Example adding to table
-		#puts table[1][3] # Example returning from table
-
 		# Contains all user defined variables
 		@symbols = Symbols.new(0)
 
@@ -49,7 +45,7 @@ class Parser
 
 				end until #RHS is empty
 
-				# @stack.push(LHS)
+				# @stack.push(LHS)	# can use array.shift to retrieve first element of the array.
 
 			end
 
@@ -59,7 +55,7 @@ class Parser
 
 	def build(words, table, grammar)
 
-		# For now, the string is the key. It may make more sence in the future to switch this
+		# I will add the reverse of all of these is the situation calls for it.
 
 		# Non-terminals
 		words["block"] = 1
