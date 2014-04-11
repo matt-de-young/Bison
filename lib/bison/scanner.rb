@@ -12,14 +12,26 @@ class Scanner
 
 			@source = File.read(file)
 			
-			@breakers = ['(', ')', '"', " ", "\n"]
+			@breakers = ['(', ')', ';', '$', ':=', '<', '<=', '=', '<>', '<=', '<', '"', " ", "\n", "\t"]
 
 		end
 
 	end
 
+	def nextToken
+
+		begin 
+
+			token = self.nextTokenMain
+
+		end while token.eql? "\n" or token.eql? "\t" or token.eql? " "
+
+		return token
+
+	end
+
 	# Returns next full token
-	def nextToken()
+	def nextTokenMain
 
 		token = ''
 	
@@ -61,7 +73,7 @@ class Scanner
 				if token.eql? ''	# If this is the first char
 					token << source[0]
 					source[0] = ''
-					return token
+					return token 
 
 				else
 					return token
