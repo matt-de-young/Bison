@@ -20,3 +20,10 @@ tmp
 .yardoc
 _yardoc
 doc/
+
+# MINI artifacts
+mini/
+
+# YACC artifacts
+y.output
+grammar.txt
