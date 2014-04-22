@@ -23,39 +23,73 @@ class Parser
 
 	end
 
-	def parse()
+	def parse
 
-		state, input, action = 0, scanner.nextToken(), nil
+		state, input, action = 0, scanner.nextToken(), 99
 
-		while action != 0 and action != nil	# accept & error
+		action = table[@stack.peek()][words[input]] # lookup action in the table
 
-			action = table[@stack.peek()][words[input]] # lookup action in the table
+		#puts 	#REMOVE
+		#puts "State: #{@stack.peek}"	#REMOVE
+		#puts "Input: #{input}"	#REMOVE
+		#puts "Stack: "	#REMOVE
+		#@stack.print	#REMOVE
+		#puts 	#REMOVE
+
+		while action != nil	# Error
 
 			if action > 0	# the action is positive (shift)
 
-				@stack.push(words[input], action)
-				input = scanner.nextToken()
+				@stack.push(action, words[input])
+				input = scanner.nextToken
 
 			elsif action < 0	# The action is negative (reduce)
 
-				begin 
+				rule = grammar[action.abs]	# Get the rule at the absolute value of action
+				i = 1	# Index to traverse the rule.
 
-					#	Pop(state) ;
-					#	Pop(symbol) , Check();
+				#puts "Reducing using rule #{action}"	#REMOVE
+				#puts 	#REMOVE
 
-				end until #RHS is empty
+				while i <= rule[0]
 
-				# @stack.push(LHS)	# can use array.shift to retrieve first element of the array.
+					ary =	@stack.pop 
+					token = ary[1]
 
-			end
+					if rule[i] != token	# Match grammar to what is on the stack
+						return false	# The source is not valid
+					end
 
-		end
+					i += 1
 
-	end
+				end
+
+				holdState = @stack.peek	# Get state from top of stack
+
+				newState = table[holdState][rule[i]]	# lookup action coresponding to table[state from top of stack][LHS of grammar]
+
+				@stack.push(newState, rule[i])# Put LHS & new state on top of stack 
+
+			elsif action == 0	# Accept the source
+				return true
+
+			end	# If block
+
+			#puts "State: #{@stack.peek}"	#REMOVE
+			#puts "Input: #{input}"	#REMOVE
+			#puts "Stack: "	#REMOVE
+			#@stack.print	#REMOVE
+			#puts 	#REMOVE
+
+			action = table[@stack.peek()][words[input]] # lookup action in the table before checking for nil at the begining of the loop
+
+		end	# While block
+
+		return false	# Table returned nil
+
+	end	# parse 
 
 	def build(words, table, grammar)
-
-		# I will add the reverse of all of these is the situation calls for it.
 
 		# Non-terminals
 		words["block"] = 1
@@ -150,7 +184,7 @@ class Parser
 		grammar[23] = [1, words["statement"], words["statement_list"]]
 		grammar[24] = [3, words["statement"], words[";"], words["statement_list"], words["statement_list"]]
 		grammar[25] = [1, words["lefthandside"], words["statement"]]
-		grammar[26] = [1, words["compund_statement"], words["statement"]]
+		grammar[26] = [1, words["compound_statement"], words["statement"]]
 		grammar[27] = [4, words["("], words["ID"], words[")"], words["DBMS_OUTPUT.PUT_LINE"], words["statement"]]
 		grammar[28] = [4, words["("], words["ID"], words[")"], words["DBMS_OUTPUT.PUT"], words["statement"]]
 		grammar[29] = [1, words["DBMS_OUTPUT.NEW_LINE"], words["statement"]]
@@ -227,7 +261,7 @@ class Parser
 		table[6][words["statement"]] = 28
 		table[6][words["lefthandside"]] = 29
 
-		table[7][words["$"]] = 30
+		table[7][words["$"]] = 0	# was 30
 
 		table[8].each_with_index {|val, index| table[8][index] = -10 }
 

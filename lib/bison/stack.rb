@@ -8,19 +8,19 @@ class Stack
 	end
 
 	# Push(State), Push(Token)
-	def shift(token, state)
+	def push(state, token)
 
-		stack.push(token)
-		stack.push(state)
+		@stack.push(token)	# Push with token on bellow state
+		@stack.push(state)
 
 	end
 
 	def pop
 
-		state = stack.pop()
-		token = stack.pop()
+		state = @stack.pop()
+		token = @stack.pop()
 
-		ary = [token, state]	# Returns ary
+		ary = [state, token]	# Returns ary
 
 	end
 
@@ -34,10 +34,10 @@ class Stack
 
 	end
 
-	def push(state)
+	def print
 
-	@stack.push(state)
+		puts @stack
 
 	end
-		
+
 end

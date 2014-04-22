@@ -1,13 +1,12 @@
+--test comment
+
 BEGIN
 
-	DECLARE
+	BEGIN
 
-	END
+    NULL;
 
-	--test comment
+   END;
 
-	/*
-	test multi line comment
-	*/
-
-END
+END;
+$
