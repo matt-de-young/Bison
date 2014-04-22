@@ -4,45 +4,27 @@ require_relative 'bison/scanner'
 require_relative 'bison/parser'
 require_relative 'bison/stack'
 
+puts ""
+
 def unitTests
 
 	# Test creation of symbol table & addition of a token
 	symbols = Symbols.new(0) # crate new hash for each scope (0 in this case)
 	symbols.add("num", "name", "value")
-	if symbols.has "name"
-		puts "Table creation:      Passed"
-	else
-		puts "Table creation:      Failed"
-	end
+	puts "Table creation:      Failed" unless symbols.has "name"
 
 	# Test collision detection for adding tokens
-	unless symbols.add("string", "name", "value")
-		puts "Collision detection: Passed" 
-	else
-		puts "Collision detection: Failed" 
-	end
+	puts "Collision detection: Failed" if symbols.add("string", "name", "value")
 
 	# Test token detection
-	unless symbols.has("test")
-		puts "Token detection:     Passed" 
-	else
-		puts "Token detection:     Failed" 
-	end
+	puts "Token detection:     Failed" if symbols.has("test")
 
 	# Test token retreval
 	newToken = symbols.get("name")
-	unless newToken == nil
-		puts "Token retreval:      Passed" 
-	else
-		puts "Token retreval:      Failed" 
-	end
+	puts "Token retreval:      Failed" if newToken == nil
 
 	# Test token type detection
-	if symbols.get("name").type == "num" && symbols.get("name").type != "string"
-		puts "Type detection:      Passed" 
-	else
-		puts "Type detection:      Failed"
-	end
+	puts "Type detection:      Failed" unless symbols.get("name").type == "num" && symbols.get("name").type != "string"
 
 end
 
@@ -50,9 +32,13 @@ end
 unitTests
 
 parser = Parser.new
-parser.parse()
+if parser.parse == false
+	puts "Source code not syntactially correct"
+else
+	puts "Source code accepted"
+end
 
-# Test scanner by reading the first 20 tokens of an input. 
+#Test scanner by reading the first 20 tokens of an input. 
 #scanner = Scanner.new(ARGV[0])
 #puts ""
 #i = 0
