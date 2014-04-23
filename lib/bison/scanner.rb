@@ -132,8 +132,6 @@ class Scanner
 		elsif @flag != nil and @assignment == true
 
 			@type = token if @flag.eql? "type"
-			
-			@value = token if @flag.eql? "value"
 
 			@flag = nil
 			return token
