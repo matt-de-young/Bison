@@ -115,11 +115,16 @@ class Scanner
 		elsif token.eql? ";" and @declarations == true	# This is ';'
 
 			@symbols.add(@num, @name, @type, @size, @value)	# Add token to symbol table
-			puts "Added #{@num}, #{@name}, #{@type}, #{@size}, #{@value} to symbols"	# REMOVE
+			#puts "Added #{@num}, #{@name}, #{@type}, #{@size}, #{@value} to symbols"	# REMOVE
 			@assignment = false	# The assignemnt (if there is one) is over
 			@flag = nil
 			#puts "flag set to 'nil'"	# REMOVE
 			@num += 1	# The next value will be one higher
+
+			#testtoken = @symbols.get(@name)	# REMOVE
+			#testtoken.display_details	# REMOVE
+			#puts	# REMOVE
+
 			@name = @type = @size = @value = nil	# The next variable will start with all nil
 
 			return token

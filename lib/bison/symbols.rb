@@ -17,7 +17,7 @@ class Symbols
         
 		return false unless self.has(name) == false # return false if element already exists
 
-  	token = Token.new(type, name, value) # Create the new entry
+  	token = Token.new(num, name, type, size, value) # Create the new entry
   	self.hash[name] = token # Add the entry to the hash
   	true # TODO: Is this necessary?
 
