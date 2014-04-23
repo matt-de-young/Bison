@@ -1,8 +1,6 @@
-require_relative 'stack'
-
 class Parser
 		
-	attr_accessor :scanner, :words, :symbols, :table, :grammar
+	attr_accessor :scanner, :words, :table, :grammar
 
 	def initialize()
 
@@ -15,9 +13,6 @@ class Parser
 		@grammar = Array.new(58)	# The grammar table
 
 		build(words, table, grammar)
-
-		# Contains all user defined variables
-		@symbols = Symbols.new(0)
 
 		@stack = Stack.new
 
@@ -48,13 +43,15 @@ class Parser
 				rule = grammar[action.abs]	# Get the rule at the absolute value of action
 				i = 1	# Index to traverse the rule.
 
-				#puts "Reducing using rule #{action}"	#REMOVE
 				#puts 	#REMOVE
+				#puts "Reducing using rule #{action}"	#REMOVE
 
 				while i <= rule[0]
 
 					ary =	@stack.pop 
 					token = ary[1]
+
+					#puts "Grammar: #{rule[i]}, Token: #{token}"	#REMOVE
 
 					if rule[i] != token	# Match grammar to what is on the stack
 						return false	# The source is not valid
@@ -75,11 +72,11 @@ class Parser
 
 			end	# If block
 
+			#puts 	#REMOVE
 			#puts "State: #{@stack.peek}"	#REMOVE
 			#puts "Input: #{input}"	#REMOVE
 			#puts "Stack: "	#REMOVE
 			#@stack.print	#REMOVE
-			#puts 	#REMOVE
 
 			action = table[@stack.peek()][words[input]] # lookup action in the table before checking for nil at the begining of the loop
 
@@ -160,7 +157,7 @@ class Parser
 
 		# Grammar table
 		grammar[1] = [3, '$', words["compound_statement"], words["declarations"], words["block"]]
-		grammar[2] = [2, words["DECLARE"], words["declare_rest"],	words["declarations"]]
+		grammar[2] = [2, words["declare_rest"], words["DECLARE"],	words["declarations"]]
 		grammar[3] = [0, words["declarations"]]
 		grammar[4] = [5, words["declare_rest"], words[";"], words["default"], words["data_type"], words["ID"], words["declare_rest"]]
 		grammar[5] = [0, words["declare_rest"]]

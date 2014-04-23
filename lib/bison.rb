@@ -10,11 +10,11 @@ def unitTests
 
 	# Test creation of symbol table & addition of a token
 	symbols = Symbols.new(0) # crate new hash for each scope (0 in this case)
-	symbols.add("num", "name", "value")
+	symbols.add("num", "name", "type", "size", "value")
 	puts "Table creation:      Failed" unless symbols.has "name"
 
 	# Test collision detection for adding tokens
-	puts "Collision detection: Failed" if symbols.add("string", "name", "value")
+	puts "Collision detection: Failed" if symbols.add("num", "name", "type", "size", "value")
 
 	# Test token detection
 	puts "Token detection:     Failed" if symbols.has("test")
@@ -24,19 +24,12 @@ def unitTests
 	puts "Token retreval:      Failed" if newToken == nil
 
 	# Test token type detection
-	puts "Type detection:      Failed" unless symbols.get("name").type == "num" && symbols.get("name").type != "string"
+	puts "Type detection:      Failed" unless symbols.get("name").type == "type" && symbols.get("name").type != "string"
 
 end
 
 # Run unit tests
 unitTests
-
-parser = Parser.new
-if parser.parse == false
-	puts "Source code not syntactially correct"
-else
-	puts "Source code accepted"
-end
 
 #Test scanner by reading the first 20 tokens of an input. 
 #scanner = Scanner.new(ARGV[0])
@@ -46,5 +39,12 @@ end
 #	puts scanner.nextToken()
 #	i += 1
 #end 
+
+parser = Parser.new
+if parser.parse == false
+	puts "Source code not syntactially correct"
+else
+	puts "Source code accepted"
+end
 
 puts ""

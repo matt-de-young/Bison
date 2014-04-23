@@ -13,7 +13,7 @@ class Symbols
 	end
 
 	# Returns true is token is added to the table, else returns fasle
-  def add (type, name, value)
+  def add (num, name, type, size, value)
         
 		return false unless self.has(name) == false # return false if element already exists
 
