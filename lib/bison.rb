@@ -3,6 +3,7 @@ require_relative 'bison/token'
 require_relative 'bison/scanner'
 require_relative 'bison/parser'
 require_relative 'bison/stack'
+require_relative 'bison/generator'
 
 puts ""
 
@@ -35,7 +36,7 @@ unitTests
 #scanner = Scanner.new(ARGV[0])
 #puts ""
 #i = 0
-#while i < 20
+#while i < 30
 #	puts scanner.nextToken()
 #	i += 1
 #end 

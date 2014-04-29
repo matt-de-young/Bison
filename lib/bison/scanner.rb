@@ -91,26 +91,30 @@ class Scanner
 			@value = token if @flag.eql? "value"
 			@size = token if @flag.eql? "size"
 			@flag = nil
-			return "NUM"
+			return ["NUM", token]
 
-		elsif @declarations == true and @words.has_key?(token) == false # This is a symbol
+		elsif @declarations == true and @words.has_key?(token) == false # This is the first time seeing this symbol
 
 			@assignment = true
 			@name = token
 
 			@flag = "type"
 			#puts "flag set to 'type'"	# REMOVE
-			return "ID"	# Return the placeholder for the grammar
+			return ["ID", token]	# Return the placeholder for the grammar
+
+		elsif @declarations == false and @words.has_key?(token) == false# This symbol has been seen before
+
+			return ["ID", token]	# Return the placeholder for the grammar
 
 		elsif token.eql? ":=" and @declarations == true	# This is ':='
 			@flag = "value"
 			#puts "flag set to 'value'"	# REMOVE
-			return token
+			return [token, ]
 
 		elsif token.eql? "(" and @declarations == true and @assignment == true	# This is '('
 			@flag = "size"
 			#puts "flag set to 'value'"	# REMOVE
-			return token
+			return [token, ]
 
 		elsif token.eql? ";" and @declarations == true	# This is ';'
 
@@ -127,17 +131,17 @@ class Scanner
 
 			@name = @type = @size = @value = nil	# The next variable will start with all nil
 
-			return token
+			return [token, ]
 
 		elsif @flag != nil and @assignment == true
 
 			@type = token if @flag.eql? "type"
 
 			@flag = nil
-			return token
+			return [token, ]
 
 		else
-			return token	# Not a user defined symbol
+			return [token, ]	# Not a user defined symbol
 		end
 
 	end

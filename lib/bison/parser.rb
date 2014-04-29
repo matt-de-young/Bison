@@ -1,5 +1,5 @@
 class Parser
-		
+
 	attr_accessor :scanner, :words, :table, :grammar
 
 	def initialize()
@@ -16,26 +16,28 @@ class Parser
 
 		@stack = Stack.new
 
+		filename = ARGV[0].split('.')	# Get file name of source
+		@generator = Generator.new(filename[0])
+
 	end
 
 	def parse
 
 		state, input, action = 0, scanner.nextToken(), 99
 
-		action = table[@stack.peek()][words[input]] # lookup action in the table
+		action = table[@stack.peek()][words[input[0]]] # lookup action in the table
 
-		#puts 	#REMOVE
 		#puts "State: #{@stack.peek}"	#REMOVE
-		#puts "Input: #{input}"	#REMOVE
+		#puts "Input: #{input[0]}"	#REMOVE
 		#puts "Stack: "	#REMOVE
 		#@stack.print	#REMOVE
-		#puts 	#REMOVE
 
 		while action != nil	# Error
 
 			if action > 0	# the action is positive (shift)
 
-				@stack.push(action, words[input])
+				token = [words[input[0]], input[1]]
+				@stack.push(action, token)
 				input = scanner.nextToken
 
 			elsif action < 0	# The action is negative (reduce)
@@ -46,45 +48,48 @@ class Parser
 				#puts 	#REMOVE
 				#puts "Reducing using rule #{action}"	#REMOVE
 
+				reduction = Array.new	# array to be sent to generator
+
 				while i <= rule[0]
 
-					ary =	@stack.pop 
-					token = ary[1]
+					token = @stack.pop
 
 					#puts "Grammar: #{rule[i]}, Token: #{token}"	#REMOVE
 
-					if rule[i] != token	# Match grammar to what is on the stack
-						return false	# The source is not valid
-					end
+					return false if rule[i] != token[0]	# What is on the stack does not match the grammar
 
+					reduction << token	# Append token to reduction
 					i += 1
 
 				end
 
+				@generator.gen(action.abs, reduction) if reduction.any?	# Send to generator unless the array is empty
+
 				holdState = @stack.peek	# Get state from top of stack
-
 				newState = table[holdState][rule[i]]	# lookup action coresponding to table[state from top of stack][LHS of grammar]
+				token = [rule[i], token[1]]
 
-				@stack.push(newState, rule[i])# Put LHS & new state on top of stack 
+				@stack.push(newState, token)	# Put LHS & new state on top of stack
 
 			elsif action == 0	# Accept the source
+				@generator.close	# Write everything in the buffer to output file
 				return true
 
 			end	# If block
 
 			#puts 	#REMOVE
 			#puts "State: #{@stack.peek}"	#REMOVE
-			#puts "Input: #{input}"	#REMOVE
+			#puts "Input: #{input[0]}"	#REMOVE
 			#puts "Stack: "	#REMOVE
 			#@stack.print	#REMOVE
 
-			action = table[@stack.peek()][words[input]] # lookup action in the table before checking for nil at the begining of the loop
+			action = table[@stack.peek()][words[input[0]]] # lookup action in the table before checking for nil at the begining of the loop
 
 		end	# While block
 
 		return false	# Table returned nil
 
-	end	# parse 
+	end	# parse
 
 	def build(words, table, grammar)
 
