@@ -27,3 +27,6 @@ mini/
 # YACC artifacts
 y.output
 grammar.txt
+
+# Test Files
+*.bison
