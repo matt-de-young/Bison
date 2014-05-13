@@ -36,7 +36,7 @@ unitTests
 #scanner = Scanner.new(ARGV[0])
 #puts ""
 #i = 0
-#while i < 30
+#while i < 50
 #	puts scanner.nextToken()
 #	i += 1
 #end 

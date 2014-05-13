@@ -1,3 +1,8 @@
---Test1.bison
+--Test2.bison
 
-print "Hello World!"
+BEGIN
+    BEGIN
+        NULL;
+    END;
+END;
+$

@@ -26,6 +26,7 @@ class Parser
 		state, input, action = 0, scanner.nextToken(), 99
 
 		action = table[@stack.peek()][words[input[0]]] # lookup action in the table
+		token = [nil,nil]
 
 		#puts "State: #{@stack.peek}"	#REMOVE
 		#puts "Input: #{input[0]}"	#REMOVE
@@ -63,11 +64,19 @@ class Parser
 
 				end
 
+				# What should generator return to put in token[][1]?
+				# Maybe the relevant line number or variable?
 				@generator.gen(action.abs, reduction) if reduction.any?	# Send to generator unless the array is empty
 
 				holdState = @stack.peek	# Get state from top of stack
 				newState = table[holdState][rule[i]]	# lookup action coresponding to table[state from top of stack][LHS of grammar]
-				token = [rule[i], token[1]]
+
+				token = [rule[i], token[1]]	# What to push onto the stack
+				j = reduction.length - 1	# Iterate thorugh reduction
+				while token[1].nil? and j>-1	# Until we find something that isn't nil
+					token = [rule[i], reduction[j][1]]	# Try the tokens that were higher on the stack
+					j-=1
+				end
 
 				@stack.push(newState, token)	# Put LHS & new state on top of stack
 
@@ -187,8 +196,8 @@ class Parser
 		grammar[24] = [3, words["statement"], words[";"], words["statement_list"], words["statement_list"]]
 		grammar[25] = [1, words["lefthandside"], words["statement"]]
 		grammar[26] = [1, words["compound_statement"], words["statement"]]
-		grammar[27] = [4, words["("], words["ID"], words[")"], words["DBMS_OUTPUT.PUT_LINE"], words["statement"]]
-		grammar[28] = [4, words["("], words["ID"], words[")"], words["DBMS_OUTPUT.PUT"], words["statement"]]
+		grammar[27] = [4, words[")"], words["ID"], words["("], words["DBMS_OUTPUT.PUT_LINE"], words["statement"]]
+		grammar[28] = [4, words[")"], words["ID"], words["("], words["DBMS_OUTPUT.PUT"], words["statement"]]
 		grammar[29] = [1, words["DBMS_OUTPUT.NEW_LINE"], words["statement"]]
 		grammar[30] = [2, words["ID"], words["&"], words["statement"]]
 		grammar[31] = [6, words["IF"], words["END"], words["statement"], words["THEN"], words["expression"], words["IF"], words["statement"]]

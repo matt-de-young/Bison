@@ -12,7 +12,8 @@ class Scanner
 
 			@source = File.read(file)
 			
-			@breakers = ['(', ')', ';', '$', ':', ':=', '<', '<=', '=', '<>', '<=', '<', '"', " ", "\n", "\t"]
+			@breakers = ['(', ')', ';', '$', ':', ':=', '+', '-', '*', '/', '<', '<=', '=', '<>', '<=', '<', '"', " ", "\n", "\t"]
+			@ops = [ '+', '-', '*', '/', 'MOD', '<', '<=', '=', '<>', '>=', '>']
 
 		end
 
@@ -116,6 +117,9 @@ class Scanner
 			#puts "flag set to 'value'"	# REMOVE
 			return [token, ]
 
+		elsif @ops.include?(token)	# This is an operator
+			return [token, token]
+
 		elsif token.eql? ";" and @declarations == true	# This is ';'
 
 			@symbols.add(@num, @name, @type, @size, @value)	# Add token to symbol table
@@ -184,9 +188,13 @@ class Scanner
 				end
 				token = ''	# Ignore the '*/'
 
-			elsif breakers.include? source[0]	# If this char is a breaker
+			elsif breakers.include? source[0] # If this char is a breaker
 
-				if token.eql? ''	# If this is the first char
+				if source[0].eql? '-' and source[1].eql? '-'	# if this is a '--'
+					token << source[0] << source[1]
+					source[0] = source[1] = ''
+
+				elsif token.eql? ''	# If this is the first char
 					token << source[0]
 					source[0] = ''
 
