@@ -58,7 +58,12 @@ class Generator
 			when 31	# IF expression THEN statement END IF
 				backPatch('if', @ifStack.pop, @line) if @ifStack.any?	# BackPatch the IF to jump to current line
 
-			#when 32	# WHILE expression LOOP statement END LOOP
+			when 32	# WHILE expression LOOP statement END LOOP
+				puts "whileStack:\n#{@whileStack}"
+				puts "ifStack:\n#{@ifStack}"
+				@code << "JMP , , ##{@whileStack[-2]-1}"
+				@line += 1
+				backPatch('while', @whileStack.pop, @line-1) if @ifStack.any?	# BackPatch the IF to jump to current line
 
 			when 33	# ID := righthandside
 				if @i == 0
@@ -74,6 +79,7 @@ class Generator
 
 			when 37
 				thisLine = ''
+				#@line -= 1	# I need this here because reasons
 				case token[1][1]	# Op Codes at the inverse because that's just how op codes do
 					when '>'
 						thisLine << "JGT "
@@ -83,6 +89,7 @@ class Generator
 						thisLine << "#{token[0][1]}, ##{@line+2}"
 						@code << (thisLine)
 						@ifStack.push(@line)	# Save to stack to be finished later
+						@whileStack.push(@line)
 					when '>='
 						thisLine << "JGE "
 						thisLine << "\#" if (token[2][1] =~ /^[-+]?[0-9]+$/)	== 0	# This is a number
@@ -91,6 +98,7 @@ class Generator
 						thisLine << "#{token[0][1]}, ##{@line+2}"
 						@code << (thisLine)
 						@ifStack.push(@line)	# Save to stack to be finished later
+						@whileStack.push(@line)
 					when '='
 						thisLine << "JEQ "
 						thisLine << "\#" if (token[2][1] =~ /^[-+]?[0-9]+$/)	== 0	# This is a number
@@ -99,6 +107,7 @@ class Generator
 						thisLine << "#{token[0][1]}, ##{@line+2}"
 						@code << (thisLine)
 						@ifStack.push(@line)	# Save to stack to be finished later
+						@whileStack.push(@line)
 					when '<='
 						thisLine << "JGE "
 						thisLine << "\#" if (token[2][1] =~ /^[-+]?[0-9]+$/)	== 0	# This is a number
@@ -107,6 +116,7 @@ class Generator
 						thisLine << "#{token[0][1]}, ##{@line+2}"
 						@code << (thisLine)
 						@ifStack.push(@line)	# Save to stack to be finished later
+						@whileStack.push(@line)
 					when '<'
 						thisLine << "JGT "
 						thisLine << "\#" if (token[2][1] =~ /^[-+]?[0-9]+$/)	== 0	# This is a number
@@ -115,6 +125,7 @@ class Generator
 						thisLine << "#{token[0][1]}, ##{@line+2}"
 						@code << (thisLine)
 						@ifStack.push(@line)	# Save to stack to be finished later
+						@whileStack.push(@line)
 					when '<>'
 						thisLine << "JNE "
 						thisLine << "\#" if (token[2][1] =~ /^[-+]?[0-9]+$/)	== 0	# This is a number
@@ -123,6 +134,7 @@ class Generator
 						thisLine << "#{token[0][1]}, ##{@line+2}"
 						@code << (thisLine)
 						@ifStack.push(@line)	# Save to stack to be finished later
+						@whileStack.push(@line)
 				end
 				#@line += 1
 
@@ -189,8 +201,11 @@ class Generator
 
 		if stack.eql? "if"
 			@code[line].concat(" ##{patch}")
+			@whileStack.pop
 
 		elsif stack.eql? "while"
+			@code[line].concat(" ##{patch}")
+			@ifStack.pop
 
 		end
 
