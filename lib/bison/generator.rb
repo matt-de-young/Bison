@@ -73,60 +73,72 @@ class Generator
 				@line += 1
 
 			when 37
+				thisLine = ''
 				case token[1][1]	# Op Codes at the inverse because that's just how op codes do
 					when '>'
-						thisLine = ''
-						thisLine << "JLE "
+						thisLine << "JGT "
 						thisLine << "\#" if (token[2][1] =~ /^[-+]?[0-9]+$/)	== 0	# This is a number
 						thisLine << "#{token[2][1]}, "
 						thisLine << "\#" if (token[0][1] =~ /^[-+]?[0-9]+$/)	== 0	# This is a number
-						thisLine << "#{token[0][1]},"
-						#@code << thisLine
-						@code << (thisLine)	# Save to stack to be finished later
-						@ifStack.push(@line)
+						thisLine << "#{token[0][1]}, ##{@line+2}"
+						@code << (thisLine)
+						@ifStack.push(@line)	# Save to stack to be finished later
 					when '>='
-						thisLine = ''
-						thisLine << "JLT "
+						thisLine << "JGE "
 						thisLine << "\#" if (token[2][1] =~ /^[-+]?[0-9]+$/)	== 0	# This is a number
 						thisLine << "#{token[2][1]}, "
 						thisLine << "\#" if (token[0][1] =~ /^[-+]?[0-9]+$/)	== 0	# This is a number
-						thisLine << "#{token[0][1]},"
-						@ifStack.push(thisLine)	# Save to stack to be finished later
+						thisLine << "#{token[0][1]}, ##{@line+2}"
+						@code << (thisLine)
+						@ifStack.push(@line)	# Save to stack to be finished later
 					when '='
-						thisLine = ''
-						thisLine << "JNE "
-						thisLine << "\#" if (token[2][1] =~ /^[-+]?[0-9]+$/)	== 0	# This is a number
-						thisLine << "#{token[2][1]}, "
-						thisLine << "\#" if (token[0][1] =~ /^[-+]?[0-9]+$/)	== 0	# This is a number
-						thisLine << "#{token[0][1]},"
-						@ifStack.push(thisLine)	# Save to stack to be finished later
-					when '<='
-						thisLine = ''
-						thisLine << "JLT "
-						thisLine << "\#" if (token[2][1] =~ /^[-+]?[0-9]+$/)	== 0	# This is a number
-						thisLine << "#{token[2][1]}, "
-						thisLine << "\#" if (token[0][1] =~ /^[-+]?[0-9]+$/)	== 0	# This is a number
-						thisLine << "#{token[0][1]},"
-						@ifStack.push(thisLine)	# Save to stack to be finished later
-					when '<'
-						thisLine = ''
-						thisLine << "JLE "
-						thisLine << "\#" if (token[2][1] =~ /^[-+]?[0-9]+$/)	== 0	# This is a number
-						thisLine << "#{token[2][1]}, "
-						thisLine << "\#" if (token[0][1] =~ /^[-+]?[0-9]+$/)	== 0	# This is a number
-						thisLine << "#{token[0][1]},"
-						@ifStack.push(thisLine)	# Save to stack to be finished later
-					when '<>'
-						thisLine = ''
 						thisLine << "JEQ "
 						thisLine << "\#" if (token[2][1] =~ /^[-+]?[0-9]+$/)	== 0	# This is a number
 						thisLine << "#{token[2][1]}, "
 						thisLine << "\#" if (token[0][1] =~ /^[-+]?[0-9]+$/)	== 0	# This is a number
-						thisLine << "#{token[0][1]},"
-						@ifStack.push(thisLine)	# Save to stack to be finished later
+						thisLine << "#{token[0][1]}, ##{@line+2}"
+						@code << (thisLine)
+						@ifStack.push(@line)	# Save to stack to be finished later
+					when '<='
+						thisLine << "JGE "
+						thisLine << "\#" if (token[2][1] =~ /^[-+]?[0-9]+$/)	== 0	# This is a number
+						thisLine << "#{token[2][1]}, "
+						thisLine << "\#" if (token[0][1] =~ /^[-+]?[0-9]+$/)	== 0	# This is a number
+						thisLine << "#{token[0][1]}, ##{@line+2}"
+						@code << (thisLine)
+						@ifStack.push(@line)	# Save to stack to be finished later
+					when '<'
+						thisLine << "JGT "
+						thisLine << "\#" if (token[2][1] =~ /^[-+]?[0-9]+$/)	== 0	# This is a number
+						thisLine << "#{token[2][1]}, "
+						thisLine << "\#" if (token[0][1] =~ /^[-+]?[0-9]+$/)	== 0	# This is a number
+						thisLine << "#{token[0][1]}, ##{@line+2}"
+						@code << (thisLine)
+						@ifStack.push(@line)	# Save to stack to be finished later
+					when '<>'
+						thisLine << "JNE "
+						thisLine << "\#" if (token[2][1] =~ /^[-+]?[0-9]+$/)	== 0	# This is a number
+						thisLine << "#{token[2][1]}, "
+						thisLine << "\#" if (token[0][1] =~ /^[-+]?[0-9]+$/)	== 0	# This is a number
+						thisLine << "#{token[0][1]}, ##{@line+2}"
+						@code << (thisLine)
+						@ifStack.push(@line)	# Save to stack to be finished later
 				end
+				#@line += 1
+
+				@code << "STO #0, , t"
 				@line += 1
 
+				@code << "JMP , , ##{@line+2}"
+				@line += 1
+
+				@code << "STO #1, , t"
+				@line += 1
+
+				@code << "JNE #1, t, "
+				@ifStack.push(@line)
+				@whileStack.push(@line)
+				@line += 1
 
 			when 39	# Simple_expression addop term
 				@i += 1
@@ -176,7 +188,7 @@ class Generator
 	def backPatch (stack, line, patch)
 
 		if stack.eql? "if"
-			@code[line].concat(" #{patch}")
+			@code[line].concat(" ##{patch}")
 
 		elsif stack.eql? "while"
 
