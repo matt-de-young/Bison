@@ -55,6 +55,10 @@ class Generator
 				@code << "SYS #0,,"
 				@line += 1
 
+			when 30
+				@code << "SYS #1, ,0"
+				@line += 1
+
 			when 31	# IF expression THEN statement END IF
 				backPatch('if', @ifStack.pop, @line) if @ifStack.any?	# BackPatch the IF to jump to current line
 
