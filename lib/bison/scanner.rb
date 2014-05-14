@@ -220,5 +220,16 @@ class Scanner
 		end 
 	
 	end
+
+	def typeCheck(a, b)
+
+		return false if @symbols.has(a) == false or @symbols.has(b) == false
+
+		a = @symbols.get(a)
+		b = @symbols.get(b)
+
+		return true if a.type.eql? b.type
+
+	end
 		
 end

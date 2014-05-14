@@ -67,9 +67,16 @@ class Parser
 
 				end
 
-				# What should generator return to put in token[][1]?
-				# Maybe the relevant line number or variable?
-				@generator.gen(action.abs, reduction) if reduction.any?	# Send to generator unless the array is empty
+				if action.abs == 33 and reduction.any?
+					if scanner.typeCheck(reduction[0][1], reduction[2][1])
+						@generator.gen(action.abs, reduction) 
+					else
+						puts "Error: '#{reduction[2][1]}' and '#{reduction[0][1]}' are incompatible types"
+						return false
+					end
+				elsif reduction.any?
+					@generator.gen(action.abs, reduction)# Send to generator unless the array is empty
+				end
 
 				holdState = @stack.peek	# Get state from top of stack
 				newState = table[holdState][rule[i]]	# lookup action coresponding to table[state from top of stack][LHS of grammar]

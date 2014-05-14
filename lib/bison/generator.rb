@@ -70,6 +70,7 @@ class Generator
 				backPatch('while', @whileStack.pop, @line-1) if @ifStack.any?	# BackPatch the IF to jump to current line
 
 			when 33	# ID := righthandside
+				thisLine = ''
 				if @i == 0
 					thisLine << "STO "
 					thisLine << "\#" if (token[0][1] =~ /^[-+]?[0-9]+$/)	== 0	# This is a number
