@@ -1,6 +1,6 @@
 class Scanner
 		
-	attr_reader :breakers, :source
+	attr_reader :breakers, :source, :symbols
 
 	def initialize(file)
 

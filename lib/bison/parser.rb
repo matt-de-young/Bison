@@ -57,7 +57,10 @@ class Parser
 
 					#puts "Grammar: #{rule[i]}, Token: #{token}"	#REMOVE
 
-					return false if rule[i] != token[0]	# What is on the stack does not match the grammar
+					if rule[i] != token[0]	# What is on the stack does not match the grammar
+						puts "Parse Error: Invalid input #{token[1]}" 
+						return false
+					end
 
 					reduction << token	# Append token to reduction
 					i += 1
@@ -96,6 +99,7 @@ class Parser
 
 		end	# While block
 
+		puts "Parse Error: Invalid input" 
 		return false	# Table returned nil
 
 	end	# parse

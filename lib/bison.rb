@@ -42,10 +42,6 @@ unitTests
 #end 
 
 parser = Parser.new
-if parser.parse == false
-	puts "Source code not syntactially correct"
-else
-	puts "Source code accepted"
-end
+puts "Source code accepted" if parser.parse
 
 puts ""
