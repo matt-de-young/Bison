@@ -30,8 +30,6 @@ class Parser
 
 		#puts "State: #{@stack.peek}"	#REMOVE
 		#puts "Input: #{input[0]}"	#REMOVE
-		#puts "Stack: "	#REMOVE
-		#@stack.print	#REMOVE
 
 		while action != nil	# Error
 
@@ -40,6 +38,7 @@ class Parser
 				token = [words[input[0]], input[1]]
 				@stack.push(action, token)
 				input = scanner.nextToken
+				#puts "#{input}"	# REMOVE
 
 			elsif action < 0	# The action is negative (reduce)
 
@@ -47,7 +46,7 @@ class Parser
 				i = 1	# Index to traverse the rule.
 
 				#puts 	#REMOVE
-				#puts "Reducing using rule #{action}"	#REMOVE
+				#puts "Reducing using rule #{action.abs}"	#REMOVE
 
 				reduction = Array.new	# array to be sent to generator
 
@@ -68,10 +67,10 @@ class Parser
 				end
 
 				if action.abs == 33 and reduction.any?
+
 					if scanner.typeCheck(reduction[0][1], reduction[2][1])
 						@generator.gen(action.abs, reduction) 
 					else
-						puts "Error: '#{reduction[2][1]}' and '#{reduction[0][1]}' are incompatible types"
 						return false
 					end
 				elsif reduction.any?
@@ -99,8 +98,6 @@ class Parser
 			#puts 	#REMOVE
 			#puts "State: #{@stack.peek}"	#REMOVE
 			#puts "Input: #{input[0]}"	#REMOVE
-			#puts "Stack: "	#REMOVE
-			#@stack.print	#REMOVE
 
 			action = table[@stack.peek()][words[input[0]]] # lookup action in the table before checking for nil at the begining of the loop
 

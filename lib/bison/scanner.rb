@@ -90,20 +90,29 @@ class Scanner
 
 		if (token =~ /^[-+]?[0-9]+$/)	== 0	# This is a number
 			@value = token if @flag.eql? "value"
+			#puts "Value of #{@name} set to #{@value}"
 			@size = token if @flag.eql? "size"
 			@flag = nil
 			return ["NUM", token]
 
-		elsif @declarations == true and @words.has_key?(token) == false # This is the first time seeing this symbol
+		elsif token.eql? "''"
+				return ["C", token]
+
+		elsif @declarations == true and @words.has_key?(token) == false	# This is the first time seeing this symbol
 
 			@assignment = true
-			@name = token
+			@name = token unless token.include?("'")
 
-			@flag = "type"
+			# Do I need this?
+			if @flag.eql? "value" and token.include?("'")
+				# Assign value to contained char
+			end
+
+			@flag = "type" 
 			#puts "flag set to 'type'"	# REMOVE
 			return ["ID", token]	# Return the placeholder for the grammar
 
-		elsif @declarations == false and @words.has_key?(token) == false# This symbol has been seen before
+		elsif @declarations == false and @words.has_key?(token) == false	# This symbol has been seen before
 
 			return ["ID", token]	# Return the placeholder for the grammar
 
@@ -123,19 +132,17 @@ class Scanner
 		elsif token.eql? ";" and @declarations == true	# This is ';'
 
 			@symbols.add(@num, @name, @type, @size, @value)	# Add token to symbol table
-			#puts "Added #{@num}, #{@name}, #{@type}, #{@size}, #{@value} to symbols"	# REMOVE
+			#puts "#{@num}, #{@name}, #{@type}, #{@size}, #{@value}"
 			@assignment = false	# The assignemnt (if there is one) is over
 			@flag = nil
-			#puts "flag set to 'nil'"	# REMOVE
 			@num += 1	# The next value will be one higher
-
-			#testtoken = @symbols.get(@name)	# REMOVE
-			#testtoken.display_details	# REMOVE
-			#puts	# REMOVE
 
 			@name = @type = @size = @value = nil	# The next variable will start with all nil
 
 			return [token, ]
+
+		elsif token.eql? "NULL" or token.eql? "TRUE" or token.eql? "FALSE"
+				return [token, token]
 
 		elsif @flag != nil and @assignment == true
 
@@ -223,12 +230,34 @@ class Scanner
 
 	def typeCheck(a, b)
 
-		return false if @symbols.has(a) == false or @symbols.has(b) == false
+		#puts "Typechecking #{a} and #{b}"	# REMOVE
+
+		if a.include? "'" and @symbols.has(b)
+			b = @symbols.get(b)
+			return true if b.type.eql? "CHAR"
+		elsif a.eql? "NULL" or a.eql? "TRUE" or a.eql? "FALSE"
+			b = @symbols.get(b)
+			return true if b.type.eql? "BOOLEAN"
+		end
+
+		if @symbols.has(a) == false
+			puts "Error: '#{a}' not declared"
+			return false
+		end
+		if @symbols.has(b) == false
+			puts "Error: '#{b}' not declared"
+			return false
+		end
 
 		a = @symbols.get(a)
 		b = @symbols.get(b)
 
-		return true if a.type.eql? b.type
+		if a.type.eql? b.type
+			return true 
+		else
+			puts "Error: '#{a}' and '#{b}' are incompatible types"
+			return false
+		end
 
 	end
 		

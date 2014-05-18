@@ -7,8 +7,9 @@ class Generator
 		@code = Array.new
 		@line = 1
 
-		name << ".jam"	# append the file extesion
-		@file = File.open(name, 'w')
+		@fileName = name
+		@fileName << ".jam"	# append the file extesion
+		#@file = File.open(name, 'w')
 
 		@ifStack = Array.new	# Use to hold if statements that need to be back patched
 		@whileStack = Array.new	# Use to hold while statements that need to be back patched
@@ -30,8 +31,12 @@ class Generator
 			when 4 # ID data_type default ; declare_rest
 				return unless token[2][1]	# only generate code if there is actually an anignment
 
+				thisLine = ''
 				if @i == 0
-					@code << "STO \##{token[2][1]},, #{token[4][1]}"
+					thisLine << "STO "
+					thisLine << "\#" if (token[0][1] =~ /^[-+]?[0-9]+$/)	== 0	# This is a number
+					thisLine << "#{token[2][1]},, #{token[4][1]}"
+					@code << thisLine
 				else
 					@code << "STO #{@reg[@i]},, #{token[4][1]}"
 					@i -= 1
@@ -63,13 +68,12 @@ class Generator
 				backPatch('if', @ifStack.pop, @line) if @ifStack.any?	# BackPatch the IF to jump to current line
 
 			when 32	# WHILE expression LOOP statement END LOOP
-				puts "whileStack:\n#{@whileStack}"
-				puts "ifStack:\n#{@ifStack}"
 				@code << "JMP , , ##{@whileStack[-2]-1}"
 				@line += 1
 				backPatch('while', @whileStack.pop, @line-1) if @ifStack.any?	# BackPatch the IF to jump to current line
 
 			when 33	# ID := righthandside
+
 				thisLine = ''
 				if @i == 0
 					thisLine << "STO "
@@ -217,6 +221,7 @@ class Generator
 	end
 
 	def close
+		@file = File.open(@fileName, 'w')
 		lineNum = 0
 		@code.each { |line| 
 			@file.puts("#{lineNum} #{line}")	# Write each line to the file
