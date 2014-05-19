@@ -231,6 +231,7 @@ class Scanner
 	def typeCheck(a, b)
 
 		#puts "Typechecking #{a} and #{b}"	# REMOVE
+		#puts @symbols.print
 
 		if a.include? "'" and @symbols.has(b)
 			b = @symbols.get(b)
@@ -253,6 +254,8 @@ class Scanner
 		b = @symbols.get(b)
 
 		if a.type.eql? b.type
+			return true 
+		elsif a.type.eql? "SMALLINT" and b.type.eql? "INT"
 			return true 
 		else
 			puts "Error: '#{a}' and '#{b}' are incompatible types"
