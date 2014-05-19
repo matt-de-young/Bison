@@ -18,9 +18,7 @@ class Stack
 	def pop
 
 		state = @stack.pop()
-		token = @stack.pop()
-
-		ary = [state, token]	# Returns ary
+		token = @stack.pop()	# Returns token
 
 	end
 

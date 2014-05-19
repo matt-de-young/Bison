@@ -1,6 +1,6 @@
 class Scanner
 		
-	attr_reader :breakers, :source
+	attr_reader :breakers, :source, :symbols
 
 	def initialize(file)
 
@@ -12,7 +12,8 @@ class Scanner
 
 			@source = File.read(file)
 			
-			@breakers = ['(', ')', ';', '$', ':', ':=', '<', '<=', '=', '<>', '<=', '<', '"', " ", "\n", "\t"]
+			@breakers = ['(', ')', ';', '$', ':', ':=', '+', '-', '*', '/', '<', '<=', '=', '<>', '<=', '<', '"', " ", "\n", "\t"]
+			@ops = [ '+', '-', '*', '/', 'MOD', '<', '<=', '=', '<>', '>=', '>']
 
 		end
 
@@ -89,55 +90,69 @@ class Scanner
 
 		if (token =~ /^[-+]?[0-9]+$/)	== 0	# This is a number
 			@value = token if @flag.eql? "value"
+			#puts "Value of #{@name} set to #{@value}"
 			@size = token if @flag.eql? "size"
 			@flag = nil
-			return "NUM"
+			return ["NUM", token]
 
-		elsif @declarations == true and @words.has_key?(token) == false # This is a symbol
+		elsif token.eql? "''"
+				return ["C", token]
+
+		elsif @declarations == true and @words.has_key?(token) == false	# This is the first time seeing this symbol
 
 			@assignment = true
-			@name = token
+			@name = token unless token.include?("'")
 
-			@flag = "type"
+			# Do I need this?
+			if @flag.eql? "value" and token.include?("'")
+				# Assign value to contained char
+			end
+
+			@flag = "type" 
 			#puts "flag set to 'type'"	# REMOVE
-			return "ID"	# Return the placeholder for the grammar
+			return ["ID", token]	# Return the placeholder for the grammar
+
+		elsif @declarations == false and @words.has_key?(token) == false	# This symbol has been seen before
+
+			return ["ID", token]	# Return the placeholder for the grammar
 
 		elsif token.eql? ":=" and @declarations == true	# This is ':='
 			@flag = "value"
 			#puts "flag set to 'value'"	# REMOVE
-			return token
+			return [token, ]
 
 		elsif token.eql? "(" and @declarations == true and @assignment == true	# This is '('
 			@flag = "size"
 			#puts "flag set to 'value'"	# REMOVE
-			return token
+			return [token, ]
+
+		elsif @ops.include?(token)	# This is an operator
+			return [token, token]
 
 		elsif token.eql? ";" and @declarations == true	# This is ';'
 
 			@symbols.add(@num, @name, @type, @size, @value)	# Add token to symbol table
-			#puts "Added #{@num}, #{@name}, #{@type}, #{@size}, #{@value} to symbols"	# REMOVE
+			#puts "#{@num}, #{@name}, #{@type}, #{@size}, #{@value}"
 			@assignment = false	# The assignemnt (if there is one) is over
 			@flag = nil
-			#puts "flag set to 'nil'"	# REMOVE
 			@num += 1	# The next value will be one higher
-
-			#testtoken = @symbols.get(@name)	# REMOVE
-			#testtoken.display_details	# REMOVE
-			#puts	# REMOVE
 
 			@name = @type = @size = @value = nil	# The next variable will start with all nil
 
-			return token
+			return [token, ]
+
+		elsif token.eql? "NULL" or token.eql? "TRUE" or token.eql? "FALSE"
+				return [token, token]
 
 		elsif @flag != nil and @assignment == true
 
 			@type = token if @flag.eql? "type"
 
 			@flag = nil
-			return token
+			return [token, ]
 
 		else
-			return token	# Not a user defined symbol
+			return [token, ]	# Not a user defined symbol
 		end
 
 	end
@@ -180,9 +195,13 @@ class Scanner
 				end
 				token = ''	# Ignore the '*/'
 
-			elsif breakers.include? source[0]	# If this char is a breaker
+			elsif breakers.include? source[0] # If this char is a breaker
 
-				if token.eql? ''	# If this is the first char
+				if source[0].eql? '-' and source[1].eql? '-'	# if this is a '--'
+					token << source[0] << source[1]
+					source[0] = source[1] = ''
+
+				elsif token.eql? ''	# If this is the first char
 					token << source[0]
 					source[0] = ''
 
@@ -207,6 +226,39 @@ class Scanner
 
 		end 
 	
+	end
+
+	def typeCheck(a, b)
+
+		#puts "Typechecking #{a} and #{b}"	# REMOVE
+
+		if a.include? "'" and @symbols.has(b)
+			b = @symbols.get(b)
+			return true if b.type.eql? "CHAR"
+		elsif a.eql? "NULL" or a.eql? "TRUE" or a.eql? "FALSE"
+			b = @symbols.get(b)
+			return true if b.type.eql? "BOOLEAN"
+		end
+
+		if @symbols.has(a) == false
+			puts "Error: '#{a}' not declared"
+			return false
+		end
+		if @symbols.has(b) == false
+			puts "Error: '#{b}' not declared"
+			return false
+		end
+
+		a = @symbols.get(a)
+		b = @symbols.get(b)
+
+		if a.type.eql? b.type
+			return true 
+		else
+			puts "Error: '#{a}' and '#{b}' are incompatible types"
+			return false
+		end
+
 	end
 		
 end

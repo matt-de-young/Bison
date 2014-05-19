@@ -47,4 +47,8 @@ class Symbols
 
   end
 
+  def print
+    puts hash.keys
+  end
+
 end

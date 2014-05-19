@@ -28,5 +28,11 @@ mini/
 y.output
 grammar.txt
 
+<<<<<<< HEAD
 # Test Files
 *.bison
+=======
+# Test & output files
+*.bison
+*.jam
+>>>>>>> Adding-Type-Checking

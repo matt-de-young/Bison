@@ -3,6 +3,7 @@ require_relative 'bison/token'
 require_relative 'bison/scanner'
 require_relative 'bison/parser'
 require_relative 'bison/stack'
+require_relative 'bison/generator'
 
 puts ""
 
@@ -35,16 +36,12 @@ unitTests
 #scanner = Scanner.new(ARGV[0])
 #puts ""
 #i = 0
-#while i < 20
+#while i < 50
 #	puts scanner.nextToken()
 #	i += 1
 #end 
 
 parser = Parser.new
-if parser.parse == false
-	puts "Source code not syntactially correct"
-else
-	puts "Source code accepted"
-end
+puts "Source code accepted" if parser.parse
 
 puts ""

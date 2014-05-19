@@ -1,5 +1,5 @@
 class Parser
-		
+
 	attr_accessor :scanner, :words, :table, :grammar
 
 	def initialize()
@@ -16,27 +16,29 @@ class Parser
 
 		@stack = Stack.new
 
+		filename = ARGV[0].split('.')	# Get file name of source
+		@generator = Generator.new(filename[0])
+
 	end
 
 	def parse
 
 		state, input, action = 0, scanner.nextToken(), 99
 
-		action = table[@stack.peek()][words[input]] # lookup action in the table
+		action = table[@stack.peek()][words[input[0]]] # lookup action in the table
+		token = [nil,nil]
 
-		#puts 	#REMOVE
 		#puts "State: #{@stack.peek}"	#REMOVE
-		#puts "Input: #{input}"	#REMOVE
-		#puts "Stack: "	#REMOVE
-		#@stack.print	#REMOVE
-		#puts 	#REMOVE
+		#puts "Input: #{input[0]}"	#REMOVE
 
 		while action != nil	# Error
 
 			if action > 0	# the action is positive (shift)
 
-				@stack.push(action, words[input])
+				token = [words[input[0]], input[1]]
+				@stack.push(action, token)
 				input = scanner.nextToken
+				#puts "#{input}"	# REMOVE
 
 			elsif action < 0	# The action is negative (reduce)
 
@@ -44,47 +46,67 @@ class Parser
 				i = 1	# Index to traverse the rule.
 
 				#puts 	#REMOVE
-				#puts "Reducing using rule #{action}"	#REMOVE
+				#puts "Reducing using rule #{action.abs}"	#REMOVE
+
+				reduction = Array.new	# array to be sent to generator
 
 				while i <= rule[0]
 
-					ary =	@stack.pop 
-					token = ary[1]
+					token = @stack.pop
 
 					#puts "Grammar: #{rule[i]}, Token: #{token}"	#REMOVE
 
-					if rule[i] != token	# Match grammar to what is on the stack
-						return false	# The source is not valid
+					if rule[i] != token[0]	# What is on the stack does not match the grammar
+						puts "Parse Error: Invalid input #{token[1]}" 
+						return false
 					end
 
+					reduction << token	# Append token to reduction
 					i += 1
 
 				end
 
-				holdState = @stack.peek	# Get state from top of stack
+				if action.abs == 33 and reduction.any?
 
+					if scanner.typeCheck(reduction[0][1], reduction[2][1])
+						@generator.gen(action.abs, reduction) 
+					else
+						return false
+					end
+				elsif reduction.any?
+					@generator.gen(action.abs, reduction)# Send to generator unless the array is empty
+				end
+
+				holdState = @stack.peek	# Get state from top of stack
 				newState = table[holdState][rule[i]]	# lookup action coresponding to table[state from top of stack][LHS of grammar]
 
-				@stack.push(newState, rule[i])# Put LHS & new state on top of stack 
+				token = [rule[i], token[1]]	# What to push onto the stack
+				j = reduction.length - 1	# Iterate thorugh reduction
+				while token[1].nil? and j>-1	# Until we find something that isn't nil
+					token = [rule[i], reduction[j][1]]	# Try the tokens that were higher on the stack
+					j-=1
+				end
+
+				@stack.push(newState, token)	# Put LHS & new state on top of stack
 
 			elsif action == 0	# Accept the source
+				@generator.close	# Write everything in the buffer to output file
 				return true
 
 			end	# If block
 
 			#puts 	#REMOVE
 			#puts "State: #{@stack.peek}"	#REMOVE
-			#puts "Input: #{input}"	#REMOVE
-			#puts "Stack: "	#REMOVE
-			#@stack.print	#REMOVE
+			#puts "Input: #{input[0]}"	#REMOVE
 
-			action = table[@stack.peek()][words[input]] # lookup action in the table before checking for nil at the begining of the loop
+			action = table[@stack.peek()][words[input[0]]] # lookup action in the table before checking for nil at the begining of the loop
 
 		end	# While block
 
+		puts "Parse Error: Invalid input" 
 		return false	# Table returned nil
 
-	end	# parse 
+	end	# parse
 
 	def build(words, table, grammar)
 
@@ -182,8 +204,8 @@ class Parser
 		grammar[24] = [3, words["statement"], words[";"], words["statement_list"], words["statement_list"]]
 		grammar[25] = [1, words["lefthandside"], words["statement"]]
 		grammar[26] = [1, words["compound_statement"], words["statement"]]
-		grammar[27] = [4, words["("], words["ID"], words[")"], words["DBMS_OUTPUT.PUT_LINE"], words["statement"]]
-		grammar[28] = [4, words["("], words["ID"], words[")"], words["DBMS_OUTPUT.PUT"], words["statement"]]
+		grammar[27] = [4, words[")"], words["ID"], words["("], words["DBMS_OUTPUT.PUT_LINE"], words["statement"]]
+		grammar[28] = [4, words[")"], words["ID"], words["("], words["DBMS_OUTPUT.PUT"], words["statement"]]
 		grammar[29] = [1, words["DBMS_OUTPUT.NEW_LINE"], words["statement"]]
 		grammar[30] = [2, words["ID"], words["&"], words["statement"]]
 		grammar[31] = [6, words["IF"], words["END"], words["statement"], words["THEN"], words["expression"], words["IF"], words["statement"]]
