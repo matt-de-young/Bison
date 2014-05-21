@@ -34,7 +34,7 @@ class Generator
 				thisLine = ''
 				if @i == 0
 					thisLine << "STO "
-					thisLine << "\#" if (token[0][1] =~ /^[-+]?[0-9]+$/)	== 0	# This is a number
+					thisLine << "\#" if (token[2][1] =~ /^[-+]?[0-9]+$/)	== 0	# This is a number
 					thisLine << "#{token[2][1]},, #{token[4][1]}"
 					@code << thisLine
 				else
@@ -47,13 +47,13 @@ class Generator
 				
 
 			when 27
-				@code << "SYS #-2, #{token[1][1]},"
+				@code << "SYS #-1, #{token[1][1]},"
 				@line += 1
 				@code << "SYS #0,,"
 				@line += 1
 
 			when 28
-				@code << "SYS #-2, #{token[1][1]},"
+				@code << "SYS #-1, #{token[1][1]},"
 				@line += 1
 
 			when 29
@@ -70,7 +70,7 @@ class Generator
 			when 32	# WHILE expression LOOP statement END LOOP
 				@code << "JMP , , ##{@whileStack[-2]-1}"
 				@line += 1
-				backPatch('while', @whileStack.pop, @line-1) if @ifStack.any?	# BackPatch the IF to jump to current line
+				backPatch('while', @whileStack.pop, @line) if @ifStack.any?	# BackPatch the IF to jump to current line-1backPatch('while', @whileStack.pop, @line-1) if @ifStack.any?
 
 			when 33	# ID := righthandside
 
@@ -82,7 +82,7 @@ class Generator
 					@code << thisLine
 				else
 					@code << "STO #{@reg[@i]},, #{token[2][1]}"
-					@i -= 1
+					@i = 0	# Formerly @i -= 1
 				end
 				@line += 1
 
@@ -164,18 +164,30 @@ class Generator
 			when 39	# Simple_expression addop term
 				@i += 1
 				if token[1][1].eql? '+'
-					thisLine = "ADD "
-					thisLine << "\#" if (token[2][1] =~ /^[-+]?[0-9]+$/)	== 0	# This is a number
-					thisLine << "#{token[2][1]}, "
-					thisLine << "\#" if (token[0][1] =~ /^[-+]?[0-9]+$/)	== 0	# This is a number
-					thisLine << "#{token[0][1]}, #{@reg[@i]}"
+					if @i > 1
+						thisLine = "ADD "
+						thisLine << "\#" if (token[2][1] =~ /^[-+]?[0-9]+$/)	== 0	# This is a number
+						thisLine << "#{token[2][1]}, #{@reg[@i-1]}, #{@reg[@i]}"
+					else
+						thisLine = "ADD "
+						thisLine << "\#" if (token[2][1] =~ /^[-+]?[0-9]+$/)	== 0	# This is a number
+						thisLine << "#{token[2][1]}, "
+						thisLine << "\#" if (token[0][1] =~ /^[-+]?[0-9]+$/)	== 0	# This is a number
+						thisLine << "#{token[0][1]}, #{@reg[@i]}"
+					end
 					@code << thisLine
 				elsif token[1][1].eql? '-'
-					thisLine = "SUB "
-					thisLine << "\#" if (token[2][1] =~ /^[-+]?[0-9]+$/)	== 0	# This is a number
-					thisLine << "#{token[2][1]}, "
-					thisLine << "\#" if (token[0][1] =~ /^[-+]?[0-9]+$/)	== 0	# This is a number
-					thisLine << "#{token[0][1]}, #{@reg[@i]}"
+					if @i > 1
+						thisLine = "SUB #{@reg[@i-1]}, "
+						thisLine << "\#" if (token[0][1] =~ /^[-+]?[0-9]+$/)	== 0	# This is a number
+						thisLine << "#{token[0][1]}, #{@reg[@i]}"
+					else
+						thisLine = "SUB "
+						thisLine << "\#" if (token[2][1] =~ /^[-+]?[0-9]+$/)	== 0	# This is a number
+						thisLine << "#{token[2][1]}, "
+						thisLine << "\#" if (token[0][1] =~ /^[-+]?[0-9]+$/)	== 0	# This is a number
+						thisLine << "#{token[0][1]}, #{@reg[@i]}"
+					end
 					@code << thisLine
 				end
 				@line += 1
@@ -183,18 +195,30 @@ class Generator
 			when 41	# term mulop factor
 				@i += 1
 				if token[1][1].eql? '*'
-					thisLine = "MUL "
-					thisLine << "\#" if (token[2][1] =~ /^[-+]?[0-9]+$/)	== 0	# This is a number
-					thisLine << "#{token[2][1]}, "
-					thisLine << "\#" if (token[0][1] =~ /^[-+]?[0-9]+$/)	== 0	# This is a number
-					thisLine << "#{token[0][1]}, #{@reg[@i]}"
+					if @i > 1
+						thisLine = "MUL "
+						thisLine << "\#" if (token[2][1] =~ /^[-+]?[0-9]+$/)	== 0	# This is a number
+						thisLine << "#{token[2][1]}, #{@reg[@i-1]}, #{@reg[@i]}"
+					else
+						thisLine = "MUL "
+						thisLine << "\#" if (token[2][1] =~ /^[-+]?[0-9]+$/)	== 0	# This is a number
+						thisLine << "#{token[2][1]}, "
+						thisLine << "\#" if (token[0][1] =~ /^[-+]?[0-9]+$/)	== 0	# This is a number
+						thisLine << "#{token[0][1]}, #{@reg[@i]}"
+					end
 					@code << thisLine
 				elsif token[1][1].eql? '/'
-					thisLine = "DIV "
-					thisLine << "\#" if (token[2][1] =~ /^[-+]?[0-9]+$/)	== 0	# This is a number
-					thisLine << "#{token[2][1]}, "
-					thisLine << "\#" if (token[0][1] =~ /^[-+]?[0-9]+$/)	== 0	# This is a number
-					thisLine << "#{token[0][1]}, #{@reg[@i]}"
+					if @i > 1
+						thisLine = "DIV #{@reg[@i-1]}, "
+						thisLine << "\#" if (token[0][1] =~ /^[-+]?[0-9]+$/)	== 0	# This is a number
+						thisLine << "#{token[0][1]}, #{@reg[@i]}"
+					else
+						thisLine = "DIV "
+						thisLine << "\#" if (token[2][1] =~ /^[-+]?[0-9]+$/)	== 0	# This is a number
+						thisLine << "#{token[2][1]}, "
+						thisLine << "\#" if (token[0][1] =~ /^[-+]?[0-9]+$/)	== 0	# This is a number
+						thisLine << "#{token[0][1]}, #{@reg[@i]}"
+					end
 					@code << thisLine
 				end
 				@line += 1
