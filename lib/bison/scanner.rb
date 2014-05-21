@@ -1,6 +1,6 @@
 class Scanner
 		
-	attr_reader :breakers, :source, :symbols
+	attr_reader :breakers, :source, :symbols, :line
 
 	def initialize(file)
 
@@ -20,6 +20,7 @@ class Scanner
 		@declarations = false	# Flag used to mark declaration block
 		@assignment = false	# Flag used to mark declaration statement
 		@flag = nil	# Signals what the next token will signify
+		@line = 1
 
 		@num = 101	# Tracks the user defined symbols added to the table
 		@name
@@ -82,6 +83,7 @@ class Scanner
 		begin 
 
 			token = self.nextTokenMain
+			@line += 1 if token.eql? "\n"
 
 		end while token.eql? "\n" or token.eql? "\t" or token.eql? " "	# Do not return whitespace
 
@@ -95,7 +97,7 @@ class Scanner
 			@flag = nil
 			return ["NUM", token]
 
-		elsif token.eql? "''"
+		elsif token.include? "'"
 				return ["C", token]
 
 		elsif @declarations == true and @words.has_key?(token) == false	# This is the first time seeing this symbol
@@ -110,11 +112,13 @@ class Scanner
 
 			@flag = "type" 
 			#puts "flag set to 'type'"	# REMOVE
-			return ["ID", token]	# Return the placeholder for the grammar
+			return ["ID", @symbols.getNum(token)]	if @symbols.has(token)
+			return ["ID", @num]	
 
 		elsif @declarations == false and @words.has_key?(token) == false	# This symbol has been seen before
 
-			return ["ID", token]	# Return the placeholder for the grammar
+			return ["ID", @symbols.getNum(token)]	if @symbols.has(token)
+			return ["ID", @num]	
 
 		elsif token.eql? ":=" and @declarations == true	# This is ':='
 			@flag = "value"
@@ -131,7 +135,7 @@ class Scanner
 
 		elsif token.eql? ";" and @declarations == true	# This is ';'
 
-			@symbols.add(@num, @name, @type, @size, @value)	# Add token to symbol table
+			@symbols.add(@num, @name, @type, @size, @value)	if @name != nil	# Add token to symbol table
 			#puts "#{@num}, #{@name}, #{@type}, #{@size}, #{@value}"
 			@assignment = false	# The assignemnt (if there is one) is over
 			@flag = nil
@@ -233,32 +237,43 @@ class Scanner
 		#puts "Typechecking #{a} and #{b}"	# REMOVE
 		#puts @symbols.print
 
-		if a.include? "'" and @symbols.has(b)
+		if (a =~ /^[-+]?[0-9]+$/)	== 0	# This is a number
 			b = @symbols.get(b)
+			if b == nil
+				puts "Error: variable not declared, line #{@line}"
+				return false
+			end
+			return true if b.type.eql? "NUMBER" or b.type.eql? "INT" or b.type.eql? "SMALLINT" or b.type.eql? "POSITIVE"
+		elsif a.include? "'"
+			b = @symbols.get(b)
+			if b == nil
+				puts "Error: variable not declared, line #{@line}"
+				return false
+			end
 			return true if b.type.eql? "CHAR"
 		elsif a.eql? "NULL" or a.eql? "TRUE" or a.eql? "FALSE"
 			b = @symbols.get(b)
 			return true if b.type.eql? "BOOLEAN"
 		end
 
-		if @symbols.has(a) == false
-			puts "Error: '#{a}' not declared"
-			return false
-		end
-		if @symbols.has(b) == false
-			puts "Error: '#{b}' not declared"
-			return false
-		end
-
 		a = @symbols.get(a)
 		b = @symbols.get(b)
+
+		if a == nil
+			puts "Error: variable not declared, line #{@line}"
+			return false
+		end
+		if b == nil
+			puts "Error: variable not declared, line #{@line}"
+			return false
+		end
 
 		if a.type.eql? b.type
 			return true 
 		elsif a.type.eql? "SMALLINT" and b.type.eql? "INT"
 			return true 
 		else
-			puts "Error: '#{a}' and '#{b}' are incompatible types"
+			puts "Error: variables are incompatible types, line #{@line}"
 			return false
 		end
 
